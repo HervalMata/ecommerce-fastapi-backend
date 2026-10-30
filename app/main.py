@@ -1,8 +1,21 @@
 from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
+from app.db.session import engine
+from app.core.config import settings
+from sqlmodel import text
 
-app = FastAPI(title="Ecommerce FastAPI Backend", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    print("Attempting to connect to the database...")
+    async with engine.begin() as conn:
+        await conn.execute(text("SELECT 1"))
+    print("Successfully connected to the database.")
+    print("Successfully connected: {settings.DATABASE_URL}")
+    yield
+
+app = FastAPI(title="Ecommerce FastAPI Backend", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
