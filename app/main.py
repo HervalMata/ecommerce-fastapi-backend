@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
+from app.core.exceptions import ApiException, api_exception_handler
 from app.db.session import engine
 from app.core.config import settings
 from sqlmodel import text
@@ -26,3 +27,9 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api")
+
+app.add_exception_handler(ApiException, api_exception_handler)
+
+@app.get("/hello")
+async def say_hello():
+    return {"message": "Welcome to the Ecommerce FastAPI Backend!"}
