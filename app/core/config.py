@@ -9,9 +9,19 @@ class Settings(BaseSettings):
     )
     
     PROJECT_NAME: str = "Ecommerce FastAPI"
+    
+    SECRET_JWT_KEY: str
 
     DATABASE_URL: str
     BACKEND_URL: str
     FRONTEND_URL: str
+    
+    MAIL_USER: str
+    MAIL_PASS: str
+    MAIL_HOST: str
+    MAIL_PORT: int
+    MAIL_FROM: str
+    
+    DELIVERY_PERSON_EMAIL: str
     
 settings = Settings()    
