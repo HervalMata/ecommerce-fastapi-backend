@@ -9,6 +9,7 @@ from app.models.user import User
 from app.services.report import get_dashboard_stats
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
+
 @router.get("/dashboard", status_code=status.HTTP_200_OK)
 async def get_dashboard_report(
     db: Session = Depends(db_session), 
