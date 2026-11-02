@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from sqlalchemy import function
+from sqlalchemy import func
 from sqlmodel import Session, select
 
 from app.models.product import Product
