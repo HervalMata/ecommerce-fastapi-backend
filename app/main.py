@@ -3,7 +3,7 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.api import api_router
 from app.core.exceptions import ApiException, api_exception_handler
-from app.db.session import engine
+from app.db.database import engine
 from app.core.config import settings
 from sqlmodel import text
 
