@@ -6,7 +6,7 @@ from sqlmodel import Session
 
 from urllib.parse import urlencode
 from app.core.config import settings
-from app.db.session import get_session
+from app.db.database import db_session
 from app.schemas.response import ApiResponse
 from app.schemas.user import (
     ForgotPasswordRequest,
@@ -22,7 +22,7 @@ from app.services.user import login_user, process_forgot_password, process_reset
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(user_data: UserCreate, db: Session = Depends(get_session)) -> ApiResponse[UserRead]:
+async def register(user_data: UserCreate, db: Session = Depends(db_session)) -> ApiResponse[UserRead]:
     user = await register_new_user(db, user_data)
 
     return ApiResponse[UserRead](
@@ -32,7 +32,7 @@ async def register(user_data: UserCreate, db: Session = Depends(get_session)) ->
     )
 
 @router.post("/login", status_code=status.HTTP_200_OK)
-async def login(login_data: UserLogin, db: Session = Depends(get_session)) -> ApiResponse[TokenData]:
+async def login(login_data: UserLogin, db: Session = Depends(db_session)) -> ApiResponse[TokenData]:
     token_info = await login_user(db, login_data)
 
     return ApiResponse[TokenData](
@@ -42,7 +42,7 @@ async def login(login_data: UserLogin, db: Session = Depends(get_session)) -> Ap
     )   
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
-async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_session)) -> ApiResponse[None]:
+async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(db_session)) -> ApiResponse[None]:
     await process_forgot_password(db, request.email)
 
     return ApiResponse[None](
@@ -51,7 +51,7 @@ async def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(
     )     
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
-async def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_session)) -> ApiResponse[None]:
+async def reset_password(request: ResetPasswordRequest, db: Session = Depends(db_session)) -> ApiResponse[None]:
     await process_reset_password(db, request)
 
     return ApiResponse[None](
@@ -76,7 +76,7 @@ async def google_login():
     return RedirectResponse(url=auth_url)
 
 @router.get("/google/callback")
-async def google_callbck(request: Request, code: str = None, db: Session = Depends(get_session)):
+async def google_callbck(request: Request, code: str = None, db: Session = Depends(db_session)):
     print("=" * 60)
     print("📞 Google Chamada Recebida")
 

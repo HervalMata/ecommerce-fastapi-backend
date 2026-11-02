@@ -38,7 +38,7 @@ async def upload_to_s3(file: UploadFile, folder:str) -> str:
 
 async def upload_file(file: UploadFile, upload_dir:Path) -> str:     
      print("inside upload_file in upload.py")      
-     uploaad_dir.mkdir(parents=True, exist_ok=True)
+     upload_dir.mkdir(parents=True, exist_ok=True)
 
      print("passed mkdir helding to generate unique filename")
      unique_name=f"{secrets.token_hex(2)}_{file.filename}"
@@ -51,7 +51,7 @@ async def upload_file(file: UploadFile, upload_dir:Path) -> str:
 
 async def upload_file_to_frontend(file: UploadFile, upload_dir:Path) -> str:
     print("inside upload_file_to_frontend in upload.py")      
-    uploaad_dir.mkdir(parents=True, exist_ok=True)
+    upload_dir.mkdir(parents=True, exist_ok=True)
      
     print("passed mkdir helding to generate unique filename")
     unique_name=f"{secrets.token_hex(2)}_{file.filename}"

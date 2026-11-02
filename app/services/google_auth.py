@@ -5,6 +5,7 @@ import httpx
 from sqlmodel import Session, select
 
 from app.core.config import settings
+from app.core.exceptions import ApiException
 from app.core.security import create_access_token
 from app.models.user import User, UserRole
 

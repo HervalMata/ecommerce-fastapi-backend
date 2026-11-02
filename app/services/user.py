@@ -1,10 +1,11 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, tzinfo
 from pathlib import Path
 import secrets
 import string
 from unittest import result
 
 from pwdlib import PasswordHash
+from requests import delete
 from sqlmodel import Session, desc, select
 from fastapi import UploadFile, status
 from app.core.config import settings
@@ -94,25 +95,31 @@ async def process_reset_password(db: Session, reset_data: ResetPasswordRequest):
     statement = select(ResetCode).where(ResetCode.code == reset_data.code)
     reset_entry = (await db.exec(statement)).first()
 
-    if not user:
+    if not reset_entry:
+        print(f"DEBUG: Reset Code '{reset_data.code}' not found in database.")
         raise ApiException("Código de recuperação invalido", status.HTTP_404_BAD_REQUEST)
 
-    if datetime.now(timezone.utc).replace(tzinfo=None) > reset_entry.expires_at:
+    print(f"DEBUG: Found Code. Expires at: {reset_entry.expires_at}, Current time: {datetime.now(timezone.utc)}")
+
+    current_time = datetime.now(timezone.utc)
+    expiry_time = reset_entry.expires_at
+
+    if expiry_time.tzinfo is None:
+        expiry_time = expiry_time.replace(tzinfo=timezone.utc)
+
+    if current_time > expiry_time:
+        print(f"DEBUG: Reset Code '{reset_data.code}' expired")
         raise ApiException("Código de recuperação expirado", status.HTTP_404_BAD_REQUEST)    
 
     user_stmt = select(User).where(User.email == reset_entry.email)    
     user = (await db.exec(user_stmt)).first()
 
     if not user:
+        print(f"DEBUG: User with email {reset_entry.email} no longer exists")
         raise ApiException("Usuário não existe mais", status.HTTP_404_NOT_FOUND)
 
     user.hashed_password = password_hasher.hash(reset_data.password)
-    db.add(user)
-
-    cleanup_stmt = select(ResetCode).where(ResetCode.email == reset_entry.email)   
-    codes_to_delete = (await db.exec(cleanup_stmt)).all()
-    for c in codes_to_delete:
-        await db.delete(c)
+    await db.execute(delete(ResetCode).where(ResetCode.email == reset_entry.email))
 
     await db.commit()
     return True    

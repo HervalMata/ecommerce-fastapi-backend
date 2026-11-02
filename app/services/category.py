@@ -2,9 +2,9 @@ from sqlmodel import Session, select
 from fastapi import status
 from app.core.exceptions import ApiException
 from app.models.category import Category
-from app.schemas.category import CategoryCreateBase, CategoryUpdate
+from app.schemas.category import CategorySchema
 
-async def create_category(db: Session, category_data: CategoryCreateBase):
+async def create_category(db: Session, category_data: CategorySchema):
     statement = select(Category).where(Category.name == category_data.name)
     result = await db.exec(statement)
 
@@ -29,7 +29,7 @@ async def get_category_by_id(db: Session, category_id: int):
 
     return category          
 
-async def update_category(db: Session, update_data: CategoryUpdate):
+async def update_category(db: Session, update_data: CategorySchema):
     db_category = await get_category_by_id(db, update_data.id)
     data = update_data.model_dump(exclude_unset=True, exclude_none=True)    
 
