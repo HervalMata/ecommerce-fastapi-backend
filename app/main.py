@@ -30,6 +30,27 @@ app.include_router(api_router, prefix="/api")
 
 app.add_exception_handler(ApiException, api_exception_handler)
 
+@app.add_exception_handler(stripe.error.StripeError)
+async def stripe_exception_handler(_request: Request, exc: stripe.error.StripeError):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "status": 400,
+            "message": f"Pagamento provedor erro: {str(exc)}",
+        }
+    )
+
+@app.add_exception_handler(Exception)
+async def general_exception_handler(_request: Request, exc: stripe.error.StripeError):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": 500,
+            "message": "Um erro inexperado ocorreu",
+            "details": str(exc),
+        }
+    )    
+
 @app.get("/hello")
 async def say_hello():
     return {"message": "Welcome to the Ecommerce FastAPI Backend!"}
